@@ -1,0 +1,19 @@
+{
+  "cucumber.features": ["cypress/e2e/features/**/*.feature"],
+  "cucumber.glue": ["cypress/support/step_definitions/**/*.js"],
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[feature]": {
+    "editor.defaultFormatter": "CucumberOpen.cucumber-official"
+  },
+  "eslint.useFlatConfig": true,
+  "files.associations": {
+    "*.feature": "cucumber"
+  },
+  "search.exclude": {
+    "**/allure-results": true,
+    "**/allure-report": true,
+    "**/allure-history": true,
+    "**/reports": true
+  }
+}

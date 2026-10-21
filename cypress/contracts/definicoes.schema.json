@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contratos.serverest.local/definicoes.schema.json",
+  "title": "Definições compartilhadas",
+  "description": "Componentes reutilizados pelos contratos de resposta da ServeRest.",
+  "$defs": {
+    "id": {
+      "description": "Identificador gerado pela ServeRest (NeDB): 16 caracteres alfanuméricos.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9]{16}$"
+    },
+    "mensagem": { "type": "string", "minLength": 1 },
+    "inteiroPositivo": { "type": "integer", "minimum": 1 },
+    "inteiroNaoNegativo": { "type": "integer", "minimum": 0 },
+    "usuario": {
+      "type": "object",
+      "required": ["nome", "email", "password", "administrador", "_id"],
+      "additionalProperties": false,
+      "properties": {
+        "nome": { "type": "string", "minLength": 1 },
+        "email": { "type": "string", "format": "email" },
+        "password": { "type": "string", "minLength": 1 },
+        "administrador": { "type": "string", "enum": ["true", "false"] },
+        "_id": { "$ref": "#/$defs/id" }
+      }
+    },
+    "produto": {
+      "type": "object",
+      "required": ["nome", "preco", "descricao", "quantidade", "_id"],
+      "additionalProperties": false,
+      "properties": {
+        "nome": { "type": "string", "minLength": 1 },
+        "preco": { "$ref": "#/$defs/inteiroPositivo" },
+        "descricao": { "type": "string", "minLength": 1 },
+        "quantidade": { "$ref": "#/$defs/inteiroNaoNegativo" },
+        "_id": { "$ref": "#/$defs/id" }
+      }
+    },
+    "itemCarrinho": {
+      "type": "object",
+      "required": ["idProduto", "quantidade", "precoUnitario"],
+      "additionalProperties": false,
+      "properties": {
+        "idProduto": { "$ref": "#/$defs/id" },
+        "quantidade": { "$ref": "#/$defs/inteiroPositivo" },
+        "precoUnitario": { "$ref": "#/$defs/inteiroPositivo" }
+      }
+    },
+    "carrinho": {
+      "type": "object",
+      "required": ["produtos", "precoTotal", "quantidadeTotal", "idUsuario", "_id"],
+      "additionalProperties": false,
+      "properties": {
+        "produtos": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/itemCarrinho" }
+        },
+        "precoTotal": { "$ref": "#/$defs/inteiroPositivo" },
+        "quantidadeTotal": { "$ref": "#/$defs/inteiroPositivo" },
+        "idUsuario": { "$ref": "#/$defs/id" },
+        "_id": { "$ref": "#/$defs/id" }
+      }
+    }
+  }
+}

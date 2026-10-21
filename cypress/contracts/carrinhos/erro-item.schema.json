@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contratos.serverest.local/carrinhos/erro-item.schema.json",
+  "title": "POST /carrinhos com item inválido (400)",
+  "description": "Produto inexistente ou sem estoque suficiente: a API aponta o item problemático.",
+  "type": "object",
+  "required": ["message", "item"],
+  "additionalProperties": false,
+  "properties": {
+    "message": { "$ref": "../definicoes.schema.json#/$defs/mensagem" },
+    "item": {
+      "type": "object",
+      "required": ["idProduto", "quantidade", "index"],
+      "additionalProperties": false,
+      "properties": {
+        "idProduto": { "type": "string", "minLength": 1 },
+        "quantidade": { "$ref": "../definicoes.schema.json#/$defs/inteiroPositivo" },
+        "quantidadeEstoque": { "$ref": "../definicoes.schema.json#/$defs/inteiroNaoNegativo" },
+        "index": { "$ref": "../definicoes.schema.json#/$defs/inteiroNaoNegativo" }
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contratos.serverest.local/produtos/exclusao-bloqueada.schema.json",
+  "title": "DELETE /produtos/{_id} em carrinho (400)",
+  "type": "object",
+  "required": ["message", "idCarrinhos"],
+  "additionalProperties": false,
+  "properties": {
+    "message": { "$ref": "../definicoes.schema.json#/$defs/mensagem" },
+    "idCarrinhos": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "../definicoes.schema.json#/$defs/id" }
+    }
+  }
+}

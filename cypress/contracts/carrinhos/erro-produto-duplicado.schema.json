@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contratos.serverest.local/carrinhos/erro-produto-duplicado.schema.json",
+  "title": "POST /carrinhos com produto duplicado (400)",
+  "type": "object",
+  "required": ["message", "idProdutosDuplicados"],
+  "additionalProperties": false,
+  "properties": {
+    "message": { "$ref": "../definicoes.schema.json#/$defs/mensagem" },
+    "idProdutosDuplicados": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "../definicoes.schema.json#/$defs/id" }
+    }
+  }
+}

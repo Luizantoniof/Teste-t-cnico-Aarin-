@@ -1,0 +1,24 @@
+# Dependências
+node_modules/
+
+# Resultados e relatórios gerados
+allure-results/
+allure-report/
+allure-history/
+reports/
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+
+# Sistema / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Ambiente
+.env
+cypress.env.json
+*.log

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contratos.serverest.local/carrinhos/listagem.schema.json",
+  "title": "GET /carrinhos (200)",
+  "type": "object",
+  "required": ["quantidade", "carrinhos"],
+  "additionalProperties": false,
+  "properties": {
+    "quantidade": { "$ref": "../definicoes.schema.json#/$defs/inteiroNaoNegativo" },
+    "carrinhos": {
+      "type": "array",
+      "items": { "$ref": "../definicoes.schema.json#/$defs/carrinho" }
+    }
+  }
+}

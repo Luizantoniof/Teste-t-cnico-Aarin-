@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contratos.serverest.local/comum/erros-validacao.schema.json",
+  "title": "Erros de validação de payload (400)",
+  "description": "Mapa campo → mensagem retornado pela validação de payload (Joi) da ServeRest.",
+  "type": "object",
+  "minProperties": 1,
+  "propertyNames": { "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\[\\d+\\])?(\\.[A-Za-z0-9_]+)*$" },
+  "additionalProperties": { "type": "string", "minLength": 1 }
+}

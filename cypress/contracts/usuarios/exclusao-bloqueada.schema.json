@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contratos.serverest.local/usuarios/exclusao-bloqueada.schema.json",
+  "title": "DELETE /usuarios/{_id} com carrinho (400)",
+  "type": "object",
+  "required": ["message", "idCarrinho"],
+  "additionalProperties": false,
+  "properties": {
+    "message": { "$ref": "../definicoes.schema.json#/$defs/mensagem" },
+    "idCarrinho": { "$ref": "../definicoes.schema.json#/$defs/id" }
+  }
+}

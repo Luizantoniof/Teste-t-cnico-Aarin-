@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contratos.serverest.local/produtos/detalhe.schema.json",
+  "title": "GET /produtos/{_id} (200)",
+  "$ref": "../definicoes.schema.json#/$defs/produto"
+}

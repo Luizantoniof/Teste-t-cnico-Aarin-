@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contratos.serverest.local/comum/mensagem.schema.json",
+  "title": "Resposta com mensagem",
+  "description": "Resposta padrão de operações que retornam apenas uma mensagem (exclusões, erros de negócio, 401/403).",
+  "type": "object",
+  "required": ["message"],
+  "additionalProperties": false,
+  "properties": {
+    "message": { "$ref": "../definicoes.schema.json#/$defs/mensagem" }
+  }
+}

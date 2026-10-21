@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contratos.serverest.local/usuarios/detalhe.schema.json",
+  "title": "GET /usuarios/{_id} (200)",
+  "$ref": "../definicoes.schema.json#/$defs/usuario"
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contratos.serverest.local/usuarios/listagem.schema.json",
+  "title": "GET /usuarios (200)",
+  "type": "object",
+  "required": ["quantidade", "usuarios"],
+  "additionalProperties": false,
+  "properties": {
+    "quantidade": { "$ref": "../definicoes.schema.json#/$defs/inteiroNaoNegativo" },
+    "usuarios": {
+      "type": "array",
+      "items": { "$ref": "../definicoes.schema.json#/$defs/usuario" }
+    }
+  }
+}

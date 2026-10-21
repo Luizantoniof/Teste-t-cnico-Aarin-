@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contratos.serverest.local/login/sucesso.schema.json",
+  "title": "POST /login (200)",
+  "type": "object",
+  "required": ["message", "authorization"],
+  "additionalProperties": false,
+  "properties": {
+    "message": { "const": "Login realizado com sucesso" },
+    "authorization": {
+      "description": "Token JWT no formato 'Bearer <header>.<payload>.<assinatura>'.",
+      "type": "string",
+      "pattern": "^Bearer [A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$"
+    }
+  }
+}

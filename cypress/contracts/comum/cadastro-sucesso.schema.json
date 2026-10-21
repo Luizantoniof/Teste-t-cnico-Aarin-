@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contratos.serverest.local/comum/cadastro-sucesso.schema.json",
+  "title": "Cadastro realizado (201)",
+  "description": "Resposta de criação de usuários, produtos e carrinhos.",
+  "type": "object",
+  "required": ["message", "_id"],
+  "additionalProperties": false,
+  "properties": {
+    "message": { "const": "Cadastro realizado com sucesso" },
+    "_id": { "$ref": "../definicoes.schema.json#/$defs/id" }
+  }
+}

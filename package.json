@@ -1,0 +1,58 @@
+{
+  "name": "serverest-api-cypress",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Automação de testes de API da ServeRest com Cypress + Cucumber, POJOs, validação de contrato (JSON Schema), Allure Report e relatório PDF.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "cy:open": "cypress open --e2e --browser electron",
+    "pretest": "node scripts/limpar-resultados.mjs",
+    "test": "cypress run",
+    "test:smoke": "npm test -- --expose tags=@smoke",
+    "test:e2e": "npm test -- --expose tags=@e2e",
+    "test:contrato": "npm test -- --expose tags=@contrato",
+    "test:negativo": "npm test -- --expose tags=@negativo",
+    "test:usuarios": "npm test -- --expose tags=@usuarios",
+    "test:login": "npm test -- --expose tags=@login",
+    "test:produtos": "npm test -- --expose tags=@produtos",
+    "test:carrinhos": "npm test -- --expose tags=@carrinhos",
+    "test:local": "npm test -- --config baseUrl=http://localhost:3000",
+    "serverest:local": "npx --yes serverest@3.2.2",
+    "report:allure": "allure generate allure-results",
+    "report:open": "allure open allure-report",
+    "report:pdf": "node scripts/gerar-relatorio-pdf.mjs",
+    "report": "npm run report:allure && npm run report:pdf",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@badeball/cypress-cucumber-preprocessor": "28.0.0",
+    "@bahmutov/cypress-esbuild-preprocessor": "2.2.8",
+    "@eslint/js": "10.0.1",
+    "@faker-js/faker": "10.6.0",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "allure": "3.20.1",
+    "allure-cypress": "3.13.0",
+    "allure-js-commons": "3.13.0",
+    "cypress": "16.1.1",
+    "cypress-on-fix": "1.1.0",
+    "esbuild": "0.28.2",
+    "eslint": "10.12.0",
+    "eslint-plugin-cypress": "7.0.2",
+    "globals": "17.13.0",
+    "prettier": "3.9.9",
+    "puppeteer": "25.12.0"
+  },
+  "allowScripts": {
+    "cypress": true,
+    "esbuild": true,
+    "puppeteer": true,
+    "fsevents": false
+  }
+}
