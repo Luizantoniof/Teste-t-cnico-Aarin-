@@ -1,42 +1,18 @@
-
-name: Testes de API • ServeRest
+name: testes-api
 
 on:
-  # Executa em qualquer branch, inclusive no primeiro push.
   push:
-
-  # Regressão completa em PRs para as branches de integração.
+    branches: [master]
   pull_request:
-    branches: [main, develop]
+    branches: [master]
 
-  # Monitoramento de segunda a sexta, às 06h de Brasília.
-  schedule:
-    - cron: '0 9 * * 1-5'
+jobs:
+  testes:
+    runs-on: ubuntu-latest
 
-  # Execução manual pela aba Actions.
-  workflow_dispatch:
-    inputs:
-      tags:
-        description: 'Tags Cucumber. Vazio executa a estratégia padrão.'
-        required: false
-        default: ''
-        type: string
-      ambiente:
-        description: 'Ambiente alvo'
-        required: true
-        type: choice
-        options:
-          - publico
-          - local-docker
-        default: publico
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
 
-permissions:
-  contents: read
-
-concurrency:
-  group: testes-api-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-env:
-  NODE_VERSION: '24'
-  SERVEREST_IMAGE: paulogoncalvesbh/serverest:3.2.2
+      - name: Exibir mensagem
+        run: echo "GitHub Actions funcionando!"
