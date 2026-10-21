@@ -1,253 +1,42 @@
+
 name: Testes de API • ServeRest
 
-# Estratégia alinhada ao Git Flow:
-#  - feature/** e bugfix/** (push) ...... smoke (@smoke) para feedback rápido
-#  - develop, release/**, hotfix/**, main  regressão completa
-#  - pull_request para develop/main ...... regressão completa (gate de merge)
-#  - schedule (dias úteis) ............... regressão completa (monitora a API mesmo sem commits)
-#  - workflow_dispatch ................... reexecução sob demanda, com tags e ambiente escolhidos
 on:
+  # Executa em qualquer branch, inclusive no primeiro push.
   push:
-    branches: [main, develop, 'feature/**', 'bugfix/**', 'release/**', 'hotfix/**']
-    paths-ignore: ['**.md', 'docs/**']
+
+  # Regressão completa em PRs para as branches de integração.
   pull_request:
     branches: [main, develop]
+
+  # Monitoramento de segunda a sexta, às 06h de Brasília.
   schedule:
-    - cron: '0 9 * * 1-5' # 06:00 (Brasília)
+    - cron: '0 9 * * 1-5'
+
+  # Execução manual pela aba Actions.
   workflow_dispatch:
     inputs:
       tags:
-        description: 'Expressão de tags Cucumber (vazio = estratégia padrão). Ex.: @smoke | @carrinhos and not @negativo'
+        description: 'Tags Cucumber. Vazio executa a estratégia padrão.'
         required: false
         default: ''
+        type: string
       ambiente:
         description: 'Ambiente alvo'
+        required: true
         type: choice
-        options: [publico, local-docker]
+        options:
+          - publico
+          - local-docker
         default: publico
 
 permissions:
   contents: read
 
 concurrency:
-  group: testes-api-${{ github.ref }}
+  group: testes-api-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
   NODE_VERSION: '24'
   SERVEREST_IMAGE: paulogoncalvesbh/serverest:3.2.2
-
-jobs:
-  qualidade:
-    name: 🧹 Lint e formatação
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    env:
-      CYPRESS_INSTALL_BINARY: '0'
-      PUPPETEER_SKIP_DOWNLOAD: 'true'
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-
-      - name: Instalar dependências
-        run: npm ci
-
-      - name: ESLint
-        run: npm run lint
-
-      - name: Prettier
-        run: npm run format:check
-
-  testes-api:
-    name: 🧪 Testes de API (Cypress + Cucumber)
-    needs: qualidade
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Definir estratégia de execução
-        id: estrategia
-        shell: bash
-        env:
-          # Entradas do usuário vão por variável de ambiente (evita injeção de script no shell).
-          INPUT_TAGS: ${{ inputs.tags }}
-          INPUT_AMBIENTE: ${{ inputs.ambiente }}
-          BRANCH: ${{ github.head_ref || github.ref_name }}
-        run: |
-          if [[ -n "$INPUT_TAGS" ]]; then
-            TAGS="$INPUT_TAGS"; MOTIVO="tags informadas manualmente"
-          elif [[ "$GITHUB_EVENT_NAME" == "push" && ( "$BRANCH" == feature/* || "$BRANCH" == bugfix/* ) ]]; then
-            TAGS="@smoke"; MOTIVO="branch de desenvolvimento: smoke para feedback rápido"
-          else
-            TAGS=""; MOTIVO="regressão completa"
-          fi
-
-          if [[ "$INPUT_AMBIENTE" == "local-docker" ]]; then
-            BASE_URL="http://localhost:3000"
-          else
-            BASE_URL="https://serverest.dev"
-          fi
-
-          {
-            echo "tags=$TAGS"
-            echo "base_url=$BASE_URL"
-            echo "ambiente=${INPUT_AMBIENTE:-publico}"
-          } >> "$GITHUB_OUTPUT"
-
-          {
-            echo "### 🧭 Estratégia de execução"
-            echo "| Branch | Gatilho | Tags | API alvo | Motivo |"
-            echo "|---|---|---|---|---|"
-            echo "| \`$BRANCH\` | $GITHUB_EVENT_NAME | \`${TAGS:-todas}\` | $BASE_URL | $MOTIVO |"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-
-      - name: Cache do binário do Cypress e do Chrome (Puppeteer)
-        uses: actions/cache@v6
-        with:
-          path: |
-            ~/.cache/Cypress
-            ~/.cache/puppeteer
-          key: binarios-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-
-      - name: Instalar dependências
-        run: npm ci
-
-      - name: Subir ServeRest local (Docker)
-        if: steps.estrategia.outputs.ambiente == 'local-docker'
-        run: docker run -d --name serverest -p 3000:3000 "$SERVEREST_IMAGE"
-
-      - name: Verificar disponibilidade da API
-        env:
-          BASE_URL: ${{ steps.estrategia.outputs.base_url }}
-        run: |
-          if curl --silent --show-error --fail --retry 10 --retry-all-errors --retry-delay 3 --max-time 15 \
-               "$BASE_URL/usuarios?email=healthcheck@qa.dev" -o /dev/null; then
-            echo "✅ API disponível em $BASE_URL"
-          else
-            echo "::error title=API indisponível::$BASE_URL não respondeu. Falhas abaixo tendem a ser de ambiente, não de produto."
-            exit 1
-          fi
-
-      - name: Restaurar histórico do Allure (tendências e flaky)
-        uses: actions/cache/restore@v6
-        with:
-          path: allure-history
-          key: allure-history-${{ github.ref_name }}-${{ github.run_id }}
-          restore-keys: |
-            allure-history-${{ github.ref_name }}-
-            allure-history-develop-
-            allure-history-main-
-
-      - name: Executar testes
-        id: cypress
-        continue-on-error: true
-        env:
-          BASE_URL: ${{ steps.estrategia.outputs.base_url }}
-          TAGS: ${{ steps.estrategia.outputs.tags }}
-        run: |
-          ARGS=()
-          if [[ -n "$TAGS" ]]; then ARGS+=(--expose "tags=$TAGS"); fi
-          npx cypress run "${ARGS[@]}"
-
-      - name: Gerar Allure Report
-        if: always()
-        env:
-          BASE_URL: ${{ steps.estrategia.outputs.base_url }}
-          TAGS: ${{ steps.estrategia.outputs.tags }}
-        run: npm run report:allure
-
-      - name: Gerar relatório PDF
-        if: always()
-        env:
-          BASE_URL: ${{ steps.estrategia.outputs.base_url }}
-          TAGS: ${{ steps.estrategia.outputs.tags }}
-        run: npm run report:pdf
-
-      - name: Publicar resumo da execução
-        if: always()
-        run: node scripts/resumo-execucao.mjs
-
-      - name: 📦 Artefato • Allure Report (HTML de arquivo único)
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: allure-report-${{ github.run_number }}
-          path: allure-report/
-          retention-days: 30
-          if-no-files-found: warn
-
-      - name: 📦 Artefato • Relatório PDF
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: relatorio-pdf-${{ github.run_number }}
-          path: reports/pdf/
-          retention-days: 30
-          if-no-files-found: warn
-
-      - name: 📦 Artefato • Resultados brutos (Allure + Cucumber)
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: resultados-brutos-${{ github.run_number }}
-          path: |
-            allure-results/
-            reports/cucumber/
-          retention-days: 7
-          if-no-files-found: warn
-
-      - name: Salvar histórico do Allure
-        if: always()
-        uses: actions/cache/save@v6
-        with:
-          path: allure-history
-          key: allure-history-${{ github.ref_name }}-${{ github.run_id }}
-
-      - name: Resultado final
-        if: steps.cypress.outcome == 'failure'
-        run: |
-          echo "::error title=Testes com falha::Há cenários reprovados. Consulte o Allure Report e o PDF nos artefatos desta execução."
-          exit 1
-
-  # Opcional: publica o Allure no GitHub Pages a cada execução da main.
-  # Para ativar: Settings › Pages › Source = "GitHub Actions" e crie a variável de repositório
-  # PUBLICAR_RELATORIO_PAGES = true (Settings › Secrets and variables › Actions › Variables).
-  publicar-relatorio:
-    name: 🌐 Publicar relatório no GitHub Pages
-    needs: testes-api
-    if: always() && github.ref == 'refs/heads/main' && vars.PUBLICAR_RELATORIO_PAGES == 'true' && needs.testes-api.result != 'cancelled'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-    steps:
-      - uses: actions/download-artifact@v8
-        with:
-          name: allure-report-${{ github.run_number }}
-          path: site
-
-      - uses: actions/download-artifact@v8
-        with:
-          name: relatorio-pdf-${{ github.run_number }}
-          path: site/pdf
-
-      - uses: actions/upload-pages-artifact@v5
-        with:
-          path: site
-
-      - id: deploy
-        uses: actions/deploy-pages@v5
